@@ -1,0 +1,102 @@
+:root {
+  color-scheme: dark light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+  background: #16181c;
+  color: #e8eaed;
+  font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+a.back {
+  color: #4c8dff;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+a.back:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  margin: 14px 0 4px;
+  font-size: 21px;
+}
+
+.expect {
+  margin: 0 0 22px;
+  padding: 10px 12px;
+  border-left: 3px solid #4c8dff;
+  background: rgba(76, 141, 255, 0.1);
+  border-radius: 0 5px 5px 0;
+  font-size: 13px;
+}
+
+.expect strong {
+  color: #9dc2ff;
+}
+
+button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 6px;
+  background: #4c8dff;
+  color: #06101f;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#log {
+  margin-top: 20px;
+  border: 1px solid #2c2f36;
+  border-radius: 6px;
+  background: #1c1f24;
+  padding: 8px 10px;
+  min-height: 44px;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12.5px;
+}
+
+#log:empty::before {
+  content: "menunggu kejadian…";
+  color: #9aa0a6;
+}
+
+.line {
+  padding: 3px 0;
+  border-bottom: 1px solid #23262c;
+}
+
+.line:last-child {
+  border-bottom: 0;
+}
+
+.line.blocked {
+  color: #ef9a8e;
+}
+
+.line.allowed {
+  color: #9be79f;
+}
+
+.note {
+  margin-top: 22px;
+  color: #9aa0a6;
+  font-size: 12.5px;
+}
+
+code {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #23262c;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+}

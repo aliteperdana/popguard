@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>03 — anchor tak terlihat</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script src="common.js"></script>
+    <script>
+      THG.watch();
+      window.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('click', (event) => {
+          if (event.target.id === 'trap') return;
+          THG.log('klik di halaman → diteruskan ke anchor tersembunyi');
+          document.getElementById('trap').click();
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <a class="back" href="index.html">← daftar fixture</a>
+    <h1>03 — anchor tak terlihat</h1>
+    <p class="expect">
+      Klik di mana saja pada halaman. Klik diteruskan ke anchor
+      <code>target="_blank"</code> berukuran 1×1 di luar viewport — pola
+      clickjacking. Diharapkan: <strong>diblokir</strong> dengan alasan
+      <code>hidden-anchor</code>, dan tidak ada tab baru.
+    </p>
+
+    <div style="margin-top: 18px; padding: 28px; border: 1px dashed #2c2f36; border-radius: 8px">
+      Klik di area ini.
+    </div>
+
+    <a
+      id="trap"
+      href="https://example.com/?from=hidden-anchor"
+      target="_blank"
+      style="position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden"
+      >trap</a
+    >
+
+    <div id="log"></div>
+    <p class="note">
+      Guard menolak anchor <code>_blank</code> yang tidak terlihat, karena
+      manusia tidak mungkin mengkliknya — klik seperti itu selalu hasil delegasi
+      atau pemanggilan program.
+    </p>
+  </body>
+</html>

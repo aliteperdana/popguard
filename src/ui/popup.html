@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PopGuard</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="card">
+      <header class="topbar">
+        <img class="brand-mark" src="../../icons/icon48.png" alt="" />
+        <h1 class="brand-name">PopGuard</h1>
+        <button id="options" class="gear" type="button" title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+          </svg>
+        </button>
+      </header>
+
+      <section class="hero">
+        <div id="shield" class="shield" data-state="off">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path class="shield-body" d="M12 2.2 20 5v6.1c0 4.9-3.4 9.1-8 10.9-4.6-1.8-8-6-8-10.9V5l8-2.8Z" />
+            <path class="shield-check" d="m7.9 12.2 2.7 2.7 5.5-5.5" />
+          </svg>
+        </div>
+        <h2 id="state-title" class="state-title">Protection Off</h2>
+        <p id="state-sub" class="state-sub">Protection is off for this site.</p>
+      </section>
+
+      <div class="panel">
+        <div class="stat">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M5.6 5.6 18.4 18.4" stroke-linecap="round" />
+          </svg>
+          <div class="stat-text">
+            <strong id="stat-count">0</strong>
+            <span>Blocked Today</span>
+          </div>
+        </div>
+
+        <div class="panel-divider"></div>
+
+        <label class="switch-row" for="action">
+          <span class="switch">
+            <input id="action" type="checkbox" />
+            <span class="track" aria-hidden="true"><span class="knob"></span></span>
+          </span>
+          <span id="action-label" class="switch-label">Disabled</span>
+        </label>
+      </div>
+
+      <div id="mode" class="mode" hidden>
+        <button id="mode-balanced" class="mode-btn" type="button" data-mode="balanced">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3 19 5.6v4.9c0 3.9-2.8 7.3-7 8.7-4.2-1.4-7-4.8-7-8.7V5.6L12 3Z" />
+            <path d="m9.2 11.6 2 2 3.6-3.6" />
+          </svg>
+          Balanced
+        </button>
+        <button id="mode-strict" class="mode-btn" type="button" data-mode="strict">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M13 3 5.5 13.5H11L10 21l7.5-10.5H12L13 3Z" />
+          </svg>
+          Strict
+        </button>
+      </div>
+
+      <button id="reload" class="reload" type="button" hidden>Reload page</button>
+      <p id="guard" class="guard" hidden></p>
+      <p id="hint" class="hint" hidden></p>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

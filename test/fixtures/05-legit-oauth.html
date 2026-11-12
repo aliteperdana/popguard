@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>05 — popup sah dalam situs yang sama</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script src="common.js"></script>
+    <script>
+      THG.watch();
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('login').addEventListener('click', () => {
+          THG.log('klik tombol → window.open() ke halaman situs yang sama');
+          THG.reportOpened(window.open('/opened.html', '_blank', 'width=520,height=640'));
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <a class="back" href="index.html">← daftar fixture</a>
+    <h1>05 — popup sah dalam situs yang sama</h1>
+    <p class="expect">
+      Kontrol negatif: tab baru ke halaman <strong>di situs yang sama</strong>
+      dari klik nyata. Ini harus <strong>tetap terbuka</strong>. Kalau ikut
+      diblokir, penjaga terlalu agresif dan akan merusak navigasi normal.
+    </p>
+
+    <button id="login">Buka halaman dalam situs ini</button>
+    <div id="log"></div>
+    <p class="note">
+      Sejak aturan lintas-domain aktif, popup ke domain lain <em>tidak</em> lagi
+      dianggap sah secara default — itu diuji terpisah di fixture 06.
+    </p>
+  </body>
+</html>

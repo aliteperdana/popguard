@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>04 — popup 3 detik setelah klik</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script src="common.js"></script>
+    <script>
+      THG.watch();
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('go').addEventListener('click', () => {
+          THG.log('klik diterima; popup dijadwalkan 3 detik kemudian');
+          setTimeout(() => {
+            THG.log('window.open() setelah jeda 3 detik');
+            THG.reportOpened(window.open('https://example.com/?from=delayed-click', '_blank'));
+          }, 3000);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <a class="back" href="index.html">← daftar fixture</a>
+    <h1>04 — popup 3 detik setelah klik</h1>
+    <p class="expect">
+      Klik tombol, lalu tunggu tiga detik. Ini meniru pola "klik untuk mengunduh"
+      yang menyelipkan popup belakangan. Diharapkan: <strong>diblokir</strong>
+      dengan alasan <code>no-activation</code>, karena jeda 3 detik melewati
+      jendela aktivasi 1 detik.
+    </p>
+
+    <button id="go">Klik saya</button>
+    <div id="log"></div>
+    <p class="note">
+      Popup yang terbuka <em>segera</em> di dalam handler klik tetap diizinkan —
+      lihat fixture 05. Itu batas yang disengaja: dari sisi halaman, popup
+      seperti itu tidak bisa dibedakan dari popup yang sah.
+    </p>
+  </body>
+</html>
