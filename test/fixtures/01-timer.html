@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>01 — popup dari timer</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script src="common.js"></script>
+    <script>
+      THG.watch();
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          THG.log('timer memanggil window.open()');
+          THG.reportOpened(window.open('https://example.com/?from=timer-popup', '_blank'));
+        }, 1500);
+      });
+    </script>
+  </head>
+  <body>
+    <a class="back" href="index.html">← daftar fixture</a>
+    <h1>01 — popup dari timer</h1>
+    <p class="expect">
+      Tidak ada interaksi pengguna sama sekali. Popup muncul 1,5 detik setelah
+      halaman siap. Diharapkan: <strong>diblokir</strong> dengan alasan
+      <code>no-activation</code>.
+    </p>
+    <div id="log"></div>
+    <p class="note">
+      Pastikan popup blocker bawaan browser tidak ikut menutupnya — kalau
+      tertutup oleh Brave Shields, uji ini tidak membuktikan apa pun.
+    </p>
+  </body>
+</html>

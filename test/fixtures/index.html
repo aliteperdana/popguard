@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PopGuard — Fixture</title>
+    <link rel="stylesheet" href="fixtures.css" />
+  </head>
+  <body>
+    <h1>Fixture uji manual</h1>
+    <p class="expect">
+      Aktifkan proteksi untuk host <code>localhost</code> lewat popup ekstensi,
+      lalu <strong>muat ulang</strong> halaman fixture. Tanpa reload, guard belum
+      terpasang karena skrip halaman sudah berjalan lebih dulu.
+    </p>
+
+    <ul>
+      <li><a href="01-timer.html">01 — popup dari timer</a> → harus diblokir (no-activation)</li>
+      <li><a href="02-keydown.html">02 — popup dari keyboard</a> → harus diblokir (keyboard)</li>
+      <li><a href="03-hidden-anchor.html">03 — anchor tak terlihat</a> → harus diblokir (hidden-anchor)</li>
+      <li><a href="04-delayed-after-click.html">04 — popup 3 detik setelah klik</a> → harus diblokir (no-activation)</li>
+      <li><a href="05-legit-oauth.html">05 — popup sah dalam situs yang sama</a> → harus diizinkan</li>
+      <li><a href="06-cross-domain.html">06 — popup lintas-domain dari klik</a> → harus diblokir (cross-domain)</li>
+    </ul>
+
+    <p class="note">
+      Sejak mode per-situs ada, perilaku lintas-domain bergantung pada mode host:
+      <strong>Ketat</strong> menutup semua tab lintas-domain (fixture 06 diblokir),
+      <strong>Seimbang</strong> mengizinkan klik nyata ke domain lain (fixture 06
+      lolos). Fixture 05 (situs sama) harus diizinkan di kedua mode.
+    </p>
+
+    <p class="note">
+      Fixture disajikan lewat <code>http://localhost:8123</code>, bukan
+      <code>file://</code>, karena content script butuh origin http(s) dan
+      ekstensi tidak diberi akses file URL secara default.
+    </p>
+  </body>
+</html>

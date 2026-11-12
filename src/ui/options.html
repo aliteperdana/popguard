@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PopGuard — Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <header class="page-head">
+        <img class="brand-mark" src="../../icons/icon128.png" alt="" />
+        <div>
+          <h1>PopGuard</h1>
+          <p class="lead">
+            Only the sites listed below get the guard script. Host matching is
+            <strong>exact</strong> — <code>www.example.com</code> and
+            <code>example.com</code> are two separate entries.
+          </p>
+        </div>
+      </header>
+
+      <section>
+        <h2>Protected sites</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Site</th>
+              <th>Mode</th>
+              <th>Enabled</th>
+              <th>Blocked</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="hosts"></tbody>
+        </table>
+        <p id="hosts-empty" class="empty">
+          No sites yet. Open a site, click the PopGuard icon, then turn it on.
+        </p>
+      </section>
+
+      <section>
+        <h2>Cross-domain exceptions</h2>
+        <p class="note">
+          Domains listed here may receive a new tab from any protected site. Use
+          this for sign-in (OAuth) and payment flows. Entries also cover their
+          subdomains: <code>paypal.com</code> covers <code>www.paypal.com</code>.
+        </p>
+        <div class="toolbar">
+          <input id="exception-input" class="input mono" placeholder="accounts.google.com" spellcheck="false" />
+          <button id="add-exception" class="secondary" type="button">Add</button>
+        </div>
+        <ul id="exceptions" class="chips"></ul>
+        <p id="exceptions-empty" class="empty">No exceptions yet.</p>
+      </section>
+
+      <section>
+        <h2>Block log</h2>
+        <div class="toolbar">
+          <button id="clear-log" class="secondary" type="button">Clear log</button>
+          <span id="log-note" class="note"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Site</th>
+              <th>Reason</th>
+              <th>URL</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="log"></tbody>
+        </table>
+        <p id="log-empty" class="empty">The log is empty.</p>
+      </section>
+
+      <section>
+        <h2>Tab diagnostics</h2>
+        <p class="note">
+          Every new tab created while a protected site was active is recorded
+          here, including the ones that were allowed. If an ad tab still gets
+          through, check the <em>Opener</em> column: when it is empty, the tab did
+          not come from a protected tab.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Opener</th>
+              <th>Target</th>
+              <th>Decision</th>
+            </tr>
+          </thead>
+          <tbody id="diag"></tbody>
+        </table>
+        <p id="diag-empty" class="empty">Nothing recorded yet.</p>
+      </section>
+
+      <section>
+        <h2>Backup / restore</h2>
+        <div class="toolbar">
+          <button id="export" class="secondary" type="button">Export JSON</button>
+          <button id="import" class="secondary" type="button">Import JSON</button>
+          <input id="file" type="file" accept="application/json" hidden />
+        </div>
+        <p class="note">
+          Import only enables hosts that are already covered by the extension's
+          host access; anything else is skipped and has to be turned on from the
+          popup.
+        </p>
+      </section>
+
+      <p id="message" class="message" hidden></p>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

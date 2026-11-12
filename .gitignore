@@ -1,0 +1,16 @@
+# OS metadata
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Packaged releases
+dist/
+popguard-*.zip

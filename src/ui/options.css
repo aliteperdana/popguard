@@ -1,0 +1,248 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b0d10;
+  --panel: #15181d;
+  --card: #14171c;
+  --fg: #f3f4f6;
+  --muted: #9aa0a6;
+  --line: #23272e;
+  --accent: #ef2b3c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 40px 20px 72px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.55 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand-mark {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+h1 {
+  margin: 2px 0 6px;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  margin: 30px 0 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.lead,
+.note,
+.empty {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.lead {
+  margin: 0;
+  max-width: 70ch;
+}
+
+code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--panel);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th {
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+td {
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  word-break: break-all;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.url-cell {
+  max-width: 430px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mono {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.secondary {
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--fg);
+}
+
+.secondary:hover {
+  border-color: rgba(239, 43, 60, 0.55);
+}
+
+.danger {
+  padding: 4px 10px;
+  border: 1px solid #5c2b26;
+  border-radius: 8px;
+  background: rgba(239, 43, 60, 0.14);
+  color: #ff9aa3;
+  font-size: 12px;
+}
+
+.danger:hover {
+  background: rgba(239, 43, 60, 0.22);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.input {
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--fg);
+  font: inherit;
+}
+
+.input:focus {
+  outline: 1px solid var(--accent);
+}
+
+td .input {
+  flex: none;
+  width: 108px;
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+}
+
+.chips button {
+  padding: 0 5px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.chips button:hover {
+  color: #ff9aa3;
+}
+
+/* Keep this a real table cell: `display: flex` on a <td> stops it acting as a
+   cell, which is what made the buttons drift out of line with the row. */
+td.row-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+td.row-actions .secondary {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 9px;
+  font-size: 11.5px;
+  vertical-align: middle;
+}
+
+td.row-actions .secondary + .secondary {
+  margin-left: 6px;
+}
+
+.message {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 10px 16px;
+  border: 1px solid rgba(239, 43, 60, 0.6);
+  border-radius: 10px;
+  background: #1f2329;
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}

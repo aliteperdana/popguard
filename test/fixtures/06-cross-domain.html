@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>06 — popup lintas-domain</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script src="common.js"></script>
+    <script>
+      THG.watch();
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('ad').addEventListener('click', () => {
+          THG.log('klik tombol iklan → window.open() ke domain lain');
+          THG.reportOpened(window.open('https://example.com/?from=cross-domain', '_blank'));
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <a class="back" href="index.html">← daftar fixture</a>
+    <h1>06 — popup lintas-domain</h1>
+    <p class="expect">
+      Meniru klik iklan: klik <strong>nyata</strong> (<code>isTrusted</code>),
+      tetapi tujuannya domain lain. Diharapkan: <strong>diblokir</strong> dengan
+      alasan <code>cross-domain</code> — <strong>hanya pada mode Ketat</strong>.
+      Pada mode Seimbang, klik nyata ke domain lain justru diizinkan.
+    </p>
+
+    <button id="ad">Klik iklan (simulasi)</button>
+    <div id="log"></div>
+    <p class="note">
+      Ini perubahan perilaku yang penting: sebelumnya klik trusted selalu
+      diloloskan, sehingga setiap klik iklan membuka tab. Sekarang
+      <code>example.com</code> hanya boleh dibuka bila ditambahkan ke daftar
+      pengecualian di halaman opsi.
+    </p>
+  </body>
+</html>

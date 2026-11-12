@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>02 — popup dari keyboard</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script src="common.js"></script>
+    <script>
+      THG.watch();
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'F5' || event.key === 'F12') return;
+        THG.log(`keydown "${event.key}" → window.open()`);
+        THG.reportOpened(window.open('https://example.com/?from=keydown-popup', '_blank'));
+      });
+    </script>
+  </head>
+  <body>
+    <a class="back" href="index.html">← daftar fixture</a>
+    <h1>02 — popup dari keyboard</h1>
+    <p class="expect">
+      Tekan <strong>sembarang tombol</strong> di halaman ini. Event harus
+      <code>isTrusted</code>, jadi tidak bisa dipalsukan dengan skrip. Diharapkan:
+      <strong>diblokir</strong> dengan alasan <code>keyboard</code>.
+    </p>
+    <div id="log"></div>
+    <p class="note">
+      Handler mencatat setiap keydown, jadi mengetik di luar halaman ini tidak
+      memicu apa pun. Klik dulu area halaman agar fokus ada di sini.
+    </p>
+  </body>
+</html>
