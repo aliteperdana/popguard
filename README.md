@@ -1,10 +1,21 @@
-# PopGuard
+<p align="center">
+  <img src="icons/icon128.png" width="96" height="96" alt="PopGuard icon" />
+</p>
 
-A small MV3 extension for Brave, Chrome and other Chromium browsers that keeps
-unwanted pop-ups and stray tabs from hijacking the sites you browse.
+<h1 align="center">PopGuard</h1>
 
-It is **opt-in per site**: you decide which hosts get protection, and each host
-runs in one of two modes.
+<p align="center">
+  <strong>Blocks unwanted pop-ups, cross-domain pop-ups and stray tabs — only on the sites you enable.</strong>
+</p>
+
+PopGuard is a small Manifest V3 extension for Brave, Chrome and other Chromium
+browsers. Instead of trying to judge every site, it hides behind a simple rule:
+**you arm a site, and that site gets protected**. Each armed host runs in one of
+two modes — balanced for forums where links are meant to leave the page, strict
+for ad-heavy pages where nothing should open on its own.
+
+No build step, no dependencies, no network calls, no telemetry.
+
 
 ## Features
 
