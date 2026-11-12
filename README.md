@@ -135,6 +135,9 @@ Release packaging:
 powershell -ExecutionPolicy Bypass -File release.ps1
 ```
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the design invariants, fixture
+expectations and verification steps.
+
 ## Known limitations
 
 - **A tab opened without an opener** (noopener) is attributed by focus; a
