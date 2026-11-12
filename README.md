@@ -16,6 +16,16 @@ for ad-heavy pages where nothing should open on its own.
 
 No build step, no dependencies, no network calls, no telemetry.
 
+## Why this exists
+
+Some sites deserve your ad blocker switched off. But turning it off often brings
+pop-ups and forced new tabs that make the site unusable — so goodwill turns into
+a reason to leave.
+
+PopGuard does not filter ads, trackers or network requests, and it is not a
+replacement for an ad blocker. It only stops tabs you did not ask for, so you can
+support a site and still keep the tab bar under control.
+
 ## Screenshots
 
 <p align="center">
