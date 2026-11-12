@@ -26,6 +26,14 @@ PopGuard does not filter ads, trackers or network requests, and it is not a
 replacement for an ad blocker. It only stops tabs you did not ask for, so you can
 support a site and still keep the tab bar under control.
 
+## Demo
+
+<p align="center">
+  <img src="docs/media/demo.gif" width="720" alt="Clicking an ad banner on a news site opens a new tab with an ad URL, which PopGuard closes before it renders" />
+</p>
+
+<p align="center"><em>Clicking an ad banner on a news site — the new tab is created and closed before it renders.</em></p>
+
 ## Screenshots
 
 <p align="center">
