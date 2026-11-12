@@ -16,6 +16,21 @@ for ad-heavy pages where nothing should open on its own.
 
 No build step, no dependencies, no network calls, no telemetry.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/popup.png" width="290" alt="PopGuard popup showing protection active, six blocked today, enabled and strict mode selected" />
+</p>
+
+<p align="center"><em>The popup — shield state, blocked-today count, per-site toggle and mode.</em></p>
+
+<p align="center">
+  <img src="docs/screenshots/options.png" width="720" alt="PopGuard settings page showing protected sites, cross-domain exceptions, block log and tab diagnostics" />
+</p>
+
+<p align="center"><em>Settings — protected sites, exceptions, block log and tab diagnostics.</em></p>
+
+<p align="center"><sub>Sample data shown. Hostnames and log entries are illustrative.</sub></p>
 
 ## Features
 

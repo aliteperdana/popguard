@@ -1,0 +1,153 @@
+<!doctype html>
+<!--
+  Static documentation preview for README screenshots.
+  Markup mirrors src/ui/options.html with sample rows; styling comes from the
+  real src/ui/options.css. Keep in sync when the settings page changes.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PopGuard settings preview</title>
+    <link rel="stylesheet" href="../../src/ui/options.css" />
+  </head>
+  <body>
+    <main>
+      <header class="page-head">
+        <img class="brand-mark" src="../../icons/icon128.png" alt="" />
+        <div>
+          <h1>PopGuard</h1>
+          <p class="lead">
+            Only the sites listed below get the guard script. Host matching is
+            <strong>exact</strong> — <code>www.example.com</code> and
+            <code>example.com</code> are two separate entries.
+          </p>
+        </div>
+      </header>
+
+      <section>
+        <h2>Protected sites</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Site</th>
+              <th>Mode</th>
+              <th>Enabled</th>
+              <th>Blocked</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono nowrap">news.example.com</td>
+              <td><select class="input"><option>Balanced</option></select></td>
+              <td class="nowrap">12/11/2026, 1:14 PM</td>
+              <td class="nowrap">6 blocked · 4 guard pings</td>
+              <td class="row-actions"><button class="danger" type="button">Turn off</button></td>
+            </tr>
+            <tr>
+              <td class="mono nowrap">forum.example.org</td>
+              <td><select class="input"><option selected>Strict</option></select></td>
+              <td class="nowrap">12/11/2026, 9:02 AM</td>
+              <td class="nowrap">21 blocked · 7 guard pings</td>
+              <td class="row-actions"><button class="danger" type="button">Turn off</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Cross-domain exceptions</h2>
+        <p class="note">
+          Domains listed here may receive a new tab from any protected site. Use
+          this for sign-in (OAuth) and payment flows. Entries also cover their
+          subdomains: <code>paypal.com</code> covers <code>www.paypal.com</code>.
+        </p>
+        <div class="toolbar">
+          <input class="input mono" placeholder="accounts.google.com" />
+          <button class="secondary" type="button">Add</button>
+        </div>
+        <ul class="chips">
+          <li>accounts.google.com <button type="button">×</button></li>
+          <li>appleid.apple.com <button type="button">×</button></li>
+          <li>login.microsoftonline.com <button type="button">×</button></li>
+          <li>paypal.com <button type="button">×</button></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Block log</h2>
+        <div class="toolbar">
+          <button class="secondary" type="button">Clear log</button>
+          <span class="note">2 entries (max 300, newest first)</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Site</th>
+              <th>Reason</th>
+              <th>URL</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="nowrap">1:14:41 PM</td>
+              <td class="mono nowrap">forum.example.org</td>
+              <td class="nowrap">cross-domain tab closed</td>
+              <td class="mono url-cell">https://ads.example.net/r?ref=forum</td>
+              <td class="row-actions">
+                <button class="secondary" type="button">Open</button>
+                <button class="secondary" type="button">Allow site</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="nowrap">1:14:35 PM</td>
+              <td class="mono nowrap">forum.example.org</td>
+              <td class="nowrap">blank popup filled late</td>
+              <td class="mono url-cell">https://tracker.example.net/v/9f2</td>
+              <td class="row-actions">
+                <button class="secondary" type="button">Open</button>
+                <button class="secondary" type="button">Allow site</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Tab diagnostics</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Opener</th>
+              <th>Target</th>
+              <th>Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="nowrap">1:14:41 PM</td>
+              <td class="mono nowrap">forum.example.org</td>
+              <td class="mono url-cell">ads.example.net</td>
+              <td>BLOCKED — cross-domain</td>
+            </tr>
+            <tr>
+              <td class="nowrap">1:14:28 PM</td>
+              <td class="mono nowrap">forum.example.org</td>
+              <td class="mono url-cell">forum.example.org</td>
+              <td>allowed — same site</td>
+            </tr>
+            <tr>
+              <td class="nowrap">1:14:10 PM</td>
+              <td class="mono nowrap">news.example.com</td>
+              <td class="mono url-cell">accounts.google.com</td>
+              <td>allowed — exception</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>

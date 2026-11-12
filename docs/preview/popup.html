@@ -1,0 +1,77 @@
+<!doctype html>
+<!--
+  Static documentation preview for README screenshots.
+  Markup mirrors src/ui/popup.html; styling comes from the real src/ui/popup.css.
+  Keep this in sync when the popup layout changes.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PopGuard popup preview</title>
+    <link rel="stylesheet" href="../../src/ui/popup.css" />
+  </head>
+  <body>
+    <div class="card">
+      <header class="topbar">
+        <img class="brand-mark" src="../../icons/icon48.png" alt="" />
+        <h1 class="brand-name">PopGuard</h1>
+        <button class="gear" type="button" aria-hidden="true" tabindex="-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+          </svg>
+        </button>
+      </header>
+
+      <section class="hero">
+        <div class="shield" data-state="on">
+          <svg viewBox="0 0 24 24">
+            <path class="shield-body" d="M12 2.2 20 5v6.1c0 4.9-3.4 9.1-8 10.9-4.6-1.8-8-6-8-10.9V5l8-2.8Z" />
+            <path class="shield-check" d="m7.9 12.2 2.7 2.7 5.5-5.5" />
+          </svg>
+        </div>
+        <h2 class="state-title">Protection Active</h2>
+        <p class="state-sub">Browsing safely, free from pop-ups.</p>
+      </section>
+
+      <div class="panel">
+        <div class="stat">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M5.6 5.6 18.4 18.4" stroke-linecap="round" />
+          </svg>
+          <div class="stat-text">
+            <strong>6</strong>
+            <span>Blocked Today</span>
+          </div>
+        </div>
+
+        <div class="panel-divider"></div>
+
+        <div class="switch-row">
+          <span class="switch">
+            <input type="checkbox" checked />
+            <span class="track"><span class="knob"></span></span>
+          </span>
+          <span class="switch-label">Enabled</span>
+        </div>
+      </div>
+
+      <div class="mode">
+        <button class="mode-btn" type="button" data-active="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3 19 5.6v4.9c0 3.9-2.8 7.3-7 8.7-4.2-1.4-7-4.8-7-8.7V5.6L12 3Z" />
+            <path d="m9.2 11.6 2 2 3.6-3.6" />
+          </svg>
+          Balanced
+        </button>
+        <button class="mode-btn" type="button" data-active="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 3 5.5 13.5H11L10 21l7.5-10.5H12L13 3Z" />
+          </svg>
+          Strict
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
