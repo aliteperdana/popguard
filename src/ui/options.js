@@ -6,6 +6,8 @@ const REASONS = {
   'no-activation': 'no user interaction',
   keyboard: 'triggered by keyboard',
   'untrusted-event': 'untrusted event',
+  'no-evidence': 'no link was clicked to it',
+  'blank-popup': 'blank popup window',
   'hidden-anchor': 'invisible link',
   'cross-domain': 'cross-domain target',
   'cross-domain-anchor': 'cross-domain link',
@@ -48,10 +50,11 @@ async function loadState() {
         hosts: response.hosts || {},
         log: response.log || [],
         exceptions: response.exceptions || [],
+        settings: response.settings || { notices: true },
         diag: response.diag || [],
         seen: response.seen || {},
       }
-    : { hosts: {}, log: [], exceptions: [], diag: [], seen: {} };
+    : { hosts: {}, log: [], exceptions: [], settings: { notices: true }, diag: [], seen: {} };
 }
 
 function renderHosts(hosts, seen) {
@@ -233,7 +236,7 @@ function renderDiag(diag) {
     const target = document.createElement('td');
     target.className = 'mono url-cell';
     target.title = entry.newHost || entry.url || '';
-    target.textContent = entry.newHost || entry.url || '—';
+    target.textContent = (entry.newHost || entry.url || '—') + (entry.blank ? ' (blank)' : '');
 
     const verdict = document.createElement('td');
     verdict.textContent = VERDICTS[entry.verdict] || entry.verdict || '—';
@@ -247,9 +250,26 @@ async function reload() {
   const state = await loadState();
   renderHosts(state.hosts, state.seen);
   renderExceptions(state.exceptions);
+  renderSettings(state.settings);
   renderLog(state.log);
   renderDiag(state.diag);
 }
+
+function renderSettings(settings) {
+  el('notices').checked = settings.notices !== false;
+}
+
+el('notices').addEventListener('change', async () => {
+  const response = await chrome.runtime.sendMessage({
+    type: 'thg:setSettings',
+    settings: { notices: el('notices').checked },
+  });
+  showMessage(
+    response && response.ok
+      ? 'Notice setting saved. Reload the site for it to take effect.'
+      : 'Could not save the notice setting.',
+  );
+});
 
 el('clear-log').addEventListener('click', async () => {
   await chrome.runtime.sendMessage({ type: 'thg:clearLog' });

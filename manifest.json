@@ -2,14 +2,31 @@
   "manifest_version": 3,
   "name": "PopGuard",
   "short_name": "PopGuard",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Blocks unwanted pop-ups, cross-domain pop-ups and stray tabs on the sites you turn it on for.",
   "minimum_chrome_version": "111",
-  "permissions": ["scripting", "storage", "tabs"],
+  "permissions": ["scripting", "storage", "tabs", "webNavigation"],
   "host_permissions": ["*://*/*"],
   "background": {
     "service_worker": "src/background/sw.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/page/policy.js", "src/page/frame-guard.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_origin_as_fallback": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/bridge.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_origin_as_fallback": true
+    }
+  ],
   "action": {
     "default_title": "PopGuard",
     "default_popup": "src/ui/popup.html",

@@ -20,18 +20,19 @@
     <h1>06 — popup lintas-domain</h1>
     <p class="expect">
       Meniru klik iklan: klik <strong>nyata</strong> (<code>isTrusted</code>),
-      tetapi tujuannya domain lain. Diharapkan: <strong>diblokir</strong> dengan
-      alasan <code>cross-domain</code> — <strong>hanya pada mode Ketat</strong>.
-      Pada mode Seimbang, klik nyata ke domain lain justru diizinkan.
+      tetapi tujuannya domain lain dan tidak ada tautan yang diklik menuju ke
+      sana. Diharapkan: <strong>diblokir</strong> dengan alasan
+      <code>no-evidence</code> — di <strong>kedua mode</strong>, karena klik nyata
+      saja tidak lagi cukup untuk membuka tab lintas-domain.
     </p>
 
     <button id="ad">Klik iklan (simulasi)</button>
     <div id="log"></div>
     <p class="note">
       Ini perubahan perilaku yang penting: sebelumnya klik trusted selalu
-      diloloskan, sehingga setiap klik iklan membuka tab. Sekarang
-      <code>example.com</code> hanya boleh dibuka bila ditambahkan ke daftar
-      pengecualian di halaman opsi.
+      diloloskan. Sekarang <code>example.com</code> hanya boleh dibuka bila
+      ditambahkan ke daftar pengecualian di halaman opsi, atau bila kamu menekan
+      “Open anyway” pada notifikasi.
     </p>
   </body>
 </html>

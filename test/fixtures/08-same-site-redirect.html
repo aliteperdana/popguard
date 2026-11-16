@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>08 — banner same-site yang meredirect</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script src="common.js"></script>
+    <script>
+      THG.watch();
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('banner').addEventListener('click', () => {
+          THG.log('klik banner → window.open() ke halaman perantara SITUS SENDIRI');
+          THG.reportOpened(window.open('/08-hop.html', '_blank'));
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <a class="back" href="index.html">← daftar fixture</a>
+    <h1>08 — banner same-site yang meredirect</h1>
+    <p class="expect">
+      Pola yang dipakai situs seperti Semprot: banner membuka URL
+      <strong>situs sendiri</strong> dulu (<code>/08-hop.html</code>), baru halaman
+      itu berpindah ke iklan. Saat lahir, tab itu tidak bisa dibedakan dari popup
+      sah, jadi <strong>tab memang akan sempat muncul</strong> — yang diuji adalah
+      kecepatan penutupannya: tab harus tertutup <strong>sebelum</strong> halaman
+      iklan dimuat, dengan verdict <code>blocked-redirect</code>.
+    </p>
+
+    <button id="banner">Klik banner (same-site lalu redirect)</button>
+    <div id="log"></div>
+    <p class="note">
+      Pemantauan redirect hanya berjalan di mode <strong>Ketat</strong>. Di mode
+      Seimbang, hop lintas-domain setelah klik nyata memang diizinkan — itu
+      keputusan desain, bukan bug.
+    </p>
+  </body>
+</html>

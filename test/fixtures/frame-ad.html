@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>iframe iklan</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script>
+      // Same shape as a real ad frame: it has no idea which site embedded it,
+      // and it opens a pop-up on the user's click.
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('ad').addEventListener('click', () => {
+          window.open('https://example.com/?from=iframe-ad', '_blank');
+        });
+      });
+    </script>
+  </head>
+  <body style="padding: 14px">
+    <p class="note" style="margin-top: 0">iframe dari <code>127.0.0.1</code></p>
+    <button id="ad">Klik iklan di dalam iframe</button>
+  </body>
+</html>

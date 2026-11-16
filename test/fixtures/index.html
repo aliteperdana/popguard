@@ -20,14 +20,23 @@
       <li><a href="03-hidden-anchor.html">03 — anchor tak terlihat</a> → harus diblokir (hidden-anchor)</li>
       <li><a href="04-delayed-after-click.html">04 — popup 3 detik setelah klik</a> → harus diblokir (no-activation)</li>
       <li><a href="05-legit-oauth.html">05 — popup sah dalam situs yang sama</a> → harus diizinkan</li>
-      <li><a href="06-cross-domain.html">06 — popup lintas-domain dari klik</a> → harus diblokir (cross-domain)</li>
+      <li><a href="06-cross-domain.html">06 — popup lintas-domain dari klik</a> → harus diblokir (no-evidence)</li>
+      <li><a href="07-iframe-popup.html">07 — popup dari iframe lintas-origin</a> → tab tidak boleh lahir (no-evidence)</li>
+      <li><a href="08-same-site-redirect.html">08 — banner same-site lalu redirect</a> → tab lahir lalu ditutup (blocked-redirect)</li>
+      <li><a href="09-blank-popup.html">09 — popup kosong diisi belakangan</a> → tab tidak boleh lahir (blank-popup)</li>
     </ul>
 
     <p class="note">
-      Sejak mode per-situs ada, perilaku lintas-domain bergantung pada mode host:
-      <strong>Ketat</strong> menutup semua tab lintas-domain (fixture 06 diblokir),
-      <strong>Seimbang</strong> mengizinkan klik nyata ke domain lain (fixture 06
-      lolos). Fixture 05 (situs sama) harus diizinkan di kedua mode.
+      Fixture 06 dan 07 menguji batas yang sama dari dua arah:
+      <strong>klik nyata saja tidak cukup</strong>. Di 06 klik terjadi di halaman
+      yang di-arm, di 07 klik terjadi di dalam iframe domain lain. Keduanya harus
+      ditolak karena tidak ada tautan yang diklik menuju tujuan itu.
+    </p>
+
+    <p class="note">
+      Fixture 05 (situs sama) harus diizinkan di kedua mode. Fixture 08 butuh
+      mode <strong>Ketat</strong>: pemantauan redirect tidak berjalan di mode
+      Seimbang.
     </p>
 
     <p class="note">

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>09 — popup kosong yang diisi belakangan</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script src="common.js"></script>
+    <script>
+      THG.watch();
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('blank').addEventListener('click', () => {
+          THG.log('klik → window.open("about:blank")');
+          const handle = window.open('about:blank', '_blank');
+          THG.reportOpened(handle);
+
+          // The ad pattern: the handle exists, so the page writes the ad into it
+          // a moment later. With the stub this goes nowhere.
+          setTimeout(() => {
+            try {
+              handle.location.href = 'https://example.com/?from=blank-popup';
+              THG.log('mengisi tab kosong setelah 1,5 detik');
+            } catch (error) {
+              THG.log('stub menolak pengisian: ' + error.message, 'blocked');
+            }
+          }, 1500);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <a class="back" href="index.html">← daftar fixture</a>
+    <h1>09 — popup kosong yang diisi belakangan</h1>
+    <p class="expect">
+      Inilah vektor yang membuat tab iklan masih terlihat di situs streaming:
+      <code>window.open('about:blank')</code> diizinkan karena ada klik nyata, lalu
+      diisi alamat iklan 1,5 detik kemudian. Diharapkan: <strong>tidak ada tab sama
+      sekali</strong>, dengan alasan <code>blank-popup</code>.
+    </p>
+
+    <button id="blank">Klik → buka tab kosong</button>
+    <div id="log"></div>
+    <p class="note">
+      Harga dari aturan ini: window cetak/preview lawas yang memakai
+      <code>window.open('')</code> + <code>document.write()</code> ikut ditolak.
+      Itu disengaja — menerimanya berarti menerima tab iklan yang sama.
+    </p>
+  </body>
+</html>

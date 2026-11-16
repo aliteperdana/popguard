@@ -30,10 +30,20 @@ $types = @{
 
 $listener = [System.Net.HttpListener]::new()
 $listener.Prefixes.Add("http://localhost:$Port/")
+# A second origin on the same files: localhost and 127.0.0.1 are different
+# origins to the browser, which is what makes the cross-origin iframe fixture
+# (07-iframe-popup.html) possible.
+try {
+  $listener.Prefixes.Add("http://127.0.0.1:$Port/")
+}
+catch {
+  Write-Host "127.0.0.1 prefix unavailable; fixture 07 needs it." -ForegroundColor Yellow
+}
 $listener.Start()
 
 Write-Host "Serving $root"
 Write-Host "  http://localhost:$Port/"
+Write-Host "  http://127.0.0.1:$Port/"
 Write-Host 'Tekan Ctrl+C untuk berhenti.'
 
 try {

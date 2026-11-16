@@ -17,6 +17,11 @@ const EXCEPTIONS_KEY = 'globalExceptions';
 const LOG_KEY = 'blockLog';
 const DIAG_KEY = 'diagLog';
 const SEEN_KEY = 'guardSeen';
+const SETTINGS_KEY = 'settings';
+const FRAME_KEY = 'frameLog';
+
+/** Defaults for the small set of user preferences the guard needs. */
+const DEFAULT_SETTINGS = { notices: true };
 
 const LOG_LIMIT = 300;
 const DIAG_LIMIT = 120;
@@ -32,8 +37,13 @@ const INTENT_TTL_MS = 5000;
 const MANUAL_BLANK_MS = 1500;
 /** A URL the user explicitly reopened from the block log stays open this long. */
 const MANUAL_OPEN_TTL_MS = 15000;
+/** How long the "Open anyway" notice may reopen the URL it just saw blocked. */
+const REOPEN_TTL_MS = 15000;
+/** A judged tab stays judged this long, so no later event judges it twice. */
+const DECIDED_TTL_MS = 120000;
 
 const GUARD_ID = 'thg-guard:';
+/** Obsolete per-host bridge registrations; the bridge is now a static script. */
 const BRIDGE_ID = 'thg-bridge:';
 
 /**
@@ -64,13 +74,16 @@ const DEFAULT_EXCEPTIONS = [
 /* In-memory state. Lost on service worker restart; rebuilt on boot. */
 let hosts = {};
 let exceptions = [];
+let settings = { ...DEFAULT_SETTINGS };
 const protectedTabHosts = new Map(); // tabId -> protected host
 const allowTokens = new Map(); // tabId -> { ts, any, key } page-guard approval
 const pendingCreations = new Map(); // tabId -> { ts, openerTabId, windowId, active, url }
+const decidedCreations = new Map(); // tabId -> ts, so no path re-judges a decided tab
 const windowTypes = new Map(); // windowId -> 'normal' | 'popup' | ...
 const watchedTabs = new Map(); // tabId -> { host, ts } — tabs allowed to exist
 const intentTokens = new Map(); // tabId -> { href, ts } — right-click on a link
 const manualUrls = new Map(); // urlKey -> ts — user reopened a blocked URL
+const blockedRecently = new Map(); // tabId -> Map<url, until> — for "Open anyway"
 let lastFocusedProtected = null; // { tabId, host, windowId }
 
 /* ------------------------------------------------------------------ helpers */
@@ -107,6 +120,23 @@ function isExcepted(host) {
 const originPattern = (host) => `*://${host}/*`;
 
 /**
+ * The armed host that owns the tab a message came from.
+ *
+ * A frame's own origin is worthless for this decision: an ad iframe reports
+ * `ads.example`, while the site the user armed is the top document. `sender`
+ * carries the tab id, so the top URL is the source of truth for subframes.
+ */
+async function resolveTopHost(message, sender) {
+  const claimed = normalizeHost(message && message.host) || '';
+
+  if (!sender || !sender.tab || sender.tab.id == null) return claimed;
+  if (sender.frameId === 0) return claimed || hostOf(sender.tab.url) || '';
+
+  const tab = await chrome.tabs.get(sender.tab.id).catch(() => null);
+  return hostOf((tab && (tab.url || tab.pendingUrl)) || sender.tab.url) || claimed;
+}
+
+/**
  * Host access is granted once at install (`host_permissions: "*://*​/*"`), the
  * same way other blockers do it. `permissions.getAll()` may report the broad
  * pattern instead of the per-host subset, so both shapes must count.
@@ -119,9 +149,10 @@ async function hasOriginGranted(host) {
 /* ------------------------------------------------------------------ storage */
 
 async function loadCaches() {
-  const sync = await chrome.storage.sync.get([HOSTS_KEY, EXCEPTIONS_KEY]);
+  const sync = await chrome.storage.sync.get([HOSTS_KEY, EXCEPTIONS_KEY, SETTINGS_KEY]);
   hosts = sync[HOSTS_KEY] || {};
   exceptions = sync[EXCEPTIONS_KEY] || DEFAULT_EXCEPTIONS;
+  settings = { ...DEFAULT_SETTINGS, ...(sync[SETTINGS_KEY] || {}) };
 
   // Migrate entries created before per-site modes existed.
   let dirty = false;
@@ -140,6 +171,10 @@ async function persistHosts() {
 
 async function persistExceptions() {
   await chrome.storage.sync.set({ [EXCEPTIONS_KEY]: exceptions });
+}
+
+async function persistSettings() {
+  await chrome.storage.sync.set({ [SETTINGS_KEY]: settings });
 }
 
 async function getLog() {
@@ -175,35 +210,28 @@ async function getSeen() {
 
 async function registerForHost(host) {
   const guardId = GUARD_ID + host;
-  const bridgeId = BRIDGE_ID + host;
   const existing = await chrome.scripting.getRegisteredContentScripts();
-  const stale = existing.map((s) => s.id).filter((id) => id === guardId || id === bridgeId);
+  const stale = existing.map((s) => s.id).filter((id) => id === guardId || id === BRIDGE_ID + host);
   if (stale.length) await chrome.scripting.unregisterContentScripts({ ids: stale });
 
   await chrome.scripting.registerContentScripts([
     {
       id: guardId,
       matches: [originPattern(host)],
-      js: ['src/page/guard.js'],
+      // policy.js holds the shared decision code; guard.js only declares that
+      // this host is armed. src/page/frame-guard.js needs the same policy in
+      // cross-origin frames, where it is registered statically instead.
+      js: ['src/page/policy.js', 'src/page/guard.js'],
       runAt: 'document_start',
       world: 'MAIN',
-      allFrames: true,
-      persistAcrossSessions: true,
-    },
-    {
-      id: bridgeId,
-      matches: [originPattern(host)],
-      js: ['src/content/bridge.js'],
-      runAt: 'document_start',
-      world: 'ISOLATED',
       allFrames: true,
       persistAcrossSessions: true,
     },
   ]);
 
   // Registration can silently no-op if the permission is wrong; verify it.
-  const check = await chrome.scripting.getRegisteredContentScripts({ ids: [guardId, bridgeId] });
-  if (check.length !== 2) throw new Error('registration-incomplete');
+  const check = await chrome.scripting.getRegisteredContentScripts({ ids: [guardId] });
+  if (check.length !== 1) throw new Error('registration-incomplete');
 }
 
 async function unregisterForHost(host) {
@@ -232,7 +260,7 @@ async function reconcile() {
       await unregisterForHost(host).catch(() => {});
       continue;
     }
-    if (!registered.has(GUARD_ID + host) || !registered.has(BRIDGE_ID + host)) {
+    if (!registered.has(GUARD_ID + host)) {
       await registerForHost(host).catch((error) => console.error('[thg] register failed', host, error));
     }
   }
@@ -241,7 +269,11 @@ async function reconcile() {
     const prefix = id.startsWith(GUARD_ID) ? GUARD_ID : id.startsWith(BRIDGE_ID) ? BRIDGE_ID : null;
     if (!prefix) continue;
     const host = id.slice(prefix.length);
-    if (!hosts[host]) await unregisterForHost(host).catch(() => {});
+    // Bridge registrations are obsolete: the bridge is now a static all-frames
+    // script, because a cross-origin ad iframe needs one too.
+    if (prefix === BRIDGE_ID || !hosts[host]) {
+      await chrome.scripting.unregisterContentScripts({ ids: [id] }).catch(() => {});
+    }
   }
 
   if (dirty) await persistHosts();
@@ -415,6 +447,14 @@ async function closeHijack(tabId, trail) {
 
 function finishDiag(tabId, info, verdict, extra) {
   pendingCreations.delete(tabId);
+  // Keep the id a while instead of deleting it with the tab: a late
+  // onCreatedNavigationTarget for a tab we just closed would otherwise start
+  // over and log the same decision twice.
+  decidedCreations.set(tabId, Date.now());
+  const cutoff = Date.now() - DECIDED_TTL_MS;
+  for (const [id, ts] of decidedCreations) {
+    if (ts < cutoff) decidedCreations.delete(id);
+  }
   return appendDiag({
     ts: Date.now(),
     tabId,
@@ -423,6 +463,10 @@ function finishDiag(tabId, info, verdict, extra) {
     openerHost: extra && extra.openerHost,
     url: info.url,
     active: info.active,
+    // Did the tab exist before its address was known? A "blank at creation"
+    // popup is the shape an ad takes when it opens a window first and fills it
+    // later, and it is the difference between "we allowed it" and "we missed it".
+    blank: info.startedBlank === true,
     verdict,
   });
 }
@@ -505,7 +549,9 @@ async function evaluateOrphan(tabId, info, newHost) {
   if (!focus) return finishDiag(tabId, info, 'no-protected-opener', { newHost });
 
   if (allowTokenFresh(focus.tabId, info.url)) {
-    return allowVerdict(tabId, info, 'allowed-by-page-guard', focus.host, newHost);
+    // The destination, not the opener: an approved cross-domain popup must not
+    // be closed the moment it navigates to the URL the guard approved.
+    return allowVerdict(tabId, info, 'allowed-by-page-guard', focus.host, newHost, newHost);
   }
   if (sameSite(newHost, focus.host)) {
     return allowVerdict(tabId, info, 'same-site', focus.host, newHost);
@@ -590,7 +636,8 @@ async function evaluateCreation(tabId) {
   else verdict = 'blocked-cross-domain';
 
   if (verdict !== 'blocked-cross-domain') {
-    allowVerdict(tabId, info, verdict, openerHost, newHost);
+    // Surveillance watches the destination, whatever let the tab through.
+    allowVerdict(tabId, info, verdict, openerHost, newHost, newHost);
     return;
   }
 
@@ -634,6 +681,78 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (tab) trackTab(tab).catch(() => {});
 });
 
+/**
+ * webNavigation knows two things tabs.* does not:
+ *
+ *  - `onCreatedNavigationTarget` carries the destination URL at creation time
+ *    (and the source tab), so the decision does not wait for `tabs.onUpdated`.
+ *    A tab that is already painted is a race we have lost.
+ *  - `onBeforeNavigate` fires for the redirect hop before its request is made,
+ *    so a same-site ad redirector is closed before the ad page loads.
+ */
+if (chrome.webNavigation) {
+  chrome.webNavigation.onCreatedNavigationTarget.addListener((details) => {
+    noteNavigationTarget(details).catch(() => {});
+  });
+
+  chrome.webNavigation.onBeforeNavigate.addListener((details) => {
+    if (details.frameId !== 0) return;
+    if (!/^https?:/i.test(details.url || '')) return;
+    // The first navigation of a new tab is where its URL first becomes known.
+    // Judging here closes the window before it has painted anything, instead of
+    // waiting for tabs.onUpdated.
+    judgeFirstNavigation(details).catch(() => {});
+    evaluateRedirect(details.tabId, details.url).catch(() => {});
+  });
+}
+
+/**
+ * Feeds the tab's first committed destination into the creation decision.
+ *
+ * `tabs.onCreated` often reports no URL at all, so a popup used to sit blank
+ * until `tabs.onUpdated` arrived — long enough to be seen. This path decides at
+ * the first navigation instead.
+ */
+async function judgeFirstNavigation(details) {
+  const tabId = details.tabId;
+  if (tabId == null) return;
+
+  const pending = pendingCreations.get(tabId);
+  if (!pending) return; // already judged, or not a tab we are watching
+
+  pending.url = details.url;
+  return evaluateCreation(tabId);
+}
+
+async function noteNavigationTarget(details) {
+  const tabId = details.tabId;
+  if (tabId == null || !details.url || details.url === 'about:blank') return;
+  if (decidedCreations.has(tabId)) return;
+
+  const sourceTabId = details.sourceTabId != null && details.sourceTabId >= 0 ? details.sourceTabId : null;
+  const existing = pendingCreations.get(tabId);
+  if (existing) {
+    existing.url = details.url;
+    if (existing.openerTabId == null && sourceTabId != null) existing.openerTabId = sourceTabId;
+    return evaluateCreation(tabId);
+  }
+
+  // tabs.onCreated has not run yet (or was skipped): judge from what the
+  // navigation target tells us and ask the tab only for its window.
+  const tab = await chrome.tabs.get(tabId).catch(() => null);
+  if (!tab) return;
+
+  pendingCreations.set(tabId, {
+    ts: Date.now(),
+    openerTabId: sourceTabId != null ? sourceTabId : (tab.openerTabId ?? null),
+    windowId: tab.windowId ?? null,
+    active: tab.active !== false,
+    url: details.url,
+    startedBlank: false,
+  });
+  return evaluateCreation(tabId);
+}
+
 chrome.tabs.onActivated.addListener(({ tabId, windowId }) => {
   chrome.tabs
     .get(tabId)
@@ -659,6 +778,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   protectedTabHosts.delete(tabId);
   allowTokens.delete(tabId);
   pendingCreations.delete(tabId);
+  blockedRecently.delete(tabId);
   watchedTabs.delete(tabId);
   intentTokens.delete(tabId);
   if (lastFocusedProtected && lastFocusedProtected.tabId === tabId) lastFocusedProtected = null;
@@ -701,23 +821,40 @@ async function unprotectHost(rawHost) {
 }
 
 async function recordBlock(message, sender) {
+  // A block reported by a frame guard carries the armed host it was protecting;
+  // the frame's own origin may be an ad domain.
   const host = normalizeHost(message.host) || '';
-  if (!host) return { ok: false, error: 'missing-host' };
+  const topHost = normalizeHost(message.topHost) || host;
+  if (!topHost) return { ok: false, error: 'missing-host' };
 
+  const url = String(message.url || '');
   await appendLog({
-    host,
+    host: topHost,
     kind: message.kind || 'window.open',
     reason: message.reason || 'unknown',
-    url: message.url || '',
+    url,
     ts: Number(message.ts) || Date.now(),
   });
 
-  if (hosts[host]) {
-    hosts[host].blocks = (hosts[host].blocks || 0) + 1;
+  if (hosts[topHost]) {
+    hosts[topHost].blocks = (hosts[topHost].blocks || 0) + 1;
     await persistHosts();
   }
 
   if (sender.tab && sender.tab.id != null) {
+    // The notice may reopen this exact URL for a few seconds. Every recently
+    // blocked URL is kept: two pop-ups in a row must not overwrite each other.
+    if (/^https?:/i.test(url)) {
+      const urls = blockedRecently.get(sender.tab.id) || new Map();
+      const now = Date.now();
+      for (const [key, until] of urls) {
+        if (until < now) urls.delete(key);
+      }
+      urls.set(url, now + REOPEN_TTL_MS);
+      if (urls.size > 10) urls.delete(urls.keys().next().value);
+      blockedRecently.set(sender.tab.id, urls);
+    }
+
     try {
       const tabId = sender.tab.id;
       const current = Number(await chrome.action.getBadgeText({ tabId })) || 0;
@@ -732,6 +869,10 @@ async function recordBlock(message, sender) {
 async function recordPing(message) {
   const host = normalizeHost(message.host);
   if (!host) return { ok: true };
+
+  // The bridge is a static script on every site now, so it pings everywhere.
+  // Only armed hosts are worth a storage write; anything else is noise.
+  if (!hosts[host]) return { ok: true };
 
   const seen = await getSeen();
   const entry = seen[host] || { count: 0, lastTs: 0 };
@@ -780,19 +921,26 @@ const HANDLERS = {
     hosts,
     log: await getLog(),
     exceptions,
+    settings,
     seen: await getSeen(),
     diag: (await getDiag()).slice(0, 40),
   }),
-  'thg:config': async (message) => {
-    const host = normalizeHost(message.host) || '';
-    const entry = hosts[host];
+  'thg:config': async (message, sender) => {
+    const topHost = await resolveTopHost(message, sender);
+    const entry = hosts[topHost];
     return {
       ok: true,
       exceptions,
-      host,
+      // For the log and for decisions that are relative to the protected site.
+      host: topHost,
+      // A static frame guard runs on every site; this is the only thing that
+      // tells it whether it may act. False means "behave as if absent".
+      armed: Boolean(entry),
       mode: entry && entry.mode ? entry.mode : DEFAULT_MODE,
+      notices: settings.notices !== false,
     };
-  },  'thg:setMode': async (message) => {
+  },
+  'thg:setMode': async (message) => {
     const host = normalizeHost(message.host);
     const mode = message.mode === 'strict' ? 'strict' : 'balanced';
     if (!host || !hosts[host]) return { ok: false, error: 'unknown-host' };
@@ -817,6 +965,64 @@ const HANDLERS = {
 
     await chrome.tabs.create({ url: parsed.href, active: true });
     return { ok: true, url: parsed.href };
+  },
+  /**
+   * "Open anyway" from the notice. Only a URL that this exact tab just blocked
+   * may be reopened, so a page cannot use the notice to open its own tabs.
+   */
+  'thg:reopen': async (message, sender) => {
+    if (!sender.tab || sender.tab.id == null) return { ok: false, error: 'no-tab' };
+
+    let parsed;
+    try {
+      parsed = new URL(String(message.url || ''));
+    } catch (_) {
+      return { ok: false, error: 'invalid-url' };
+    }
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return { ok: false, error: 'invalid-url' };
+    }
+
+    const recent = blockedRecently.get(sender.tab.id);
+    const until = recent ? recent.get(parsed.href) : 0;
+    if (!until || Date.now() > until) {
+      return { ok: false, error: 'unknown-url' };
+    }
+    recent.delete(parsed.href);
+
+    // Same bypass as the block log: the watchdog must not close what the user
+    // deliberately reopened.
+    const key = urlKey(parsed.href);
+    if (key) manualUrls.set(key, Date.now());
+
+    await chrome.tabs.create({ url: parsed.href, active: true, openerTabId: sender.tab.id });
+    return { ok: true, url: parsed.href };
+  },
+  'thg:setSettings': async (message) => {
+    const next = message && message.settings;
+    if (!next || typeof next !== 'object') return { ok: false, error: 'invalid-settings' };
+    settings = { ...settings, ...next, notices: next.notices !== false };
+    await persistSettings();
+    return { ok: true, settings };
+  },
+  'thg:frame': async (message, sender) => {
+    // Only frames of an armed tab are worth recording; the frame guard reports
+    // once per document, and every ad frame would otherwise write here.
+    const topHost = normalizeHost(message.topHost) || (await resolveTopHost(message, sender));
+    if (!topHost || !hosts[topHost]) return { ok: true };
+
+    const data = await chrome.storage.local.get(FRAME_KEY);
+    const log = data[FRAME_KEY] || [];
+    log.unshift({
+      ts: Date.now(),
+      tabId: sender.tab && sender.tab.id != null ? sender.tab.id : null,
+      frameId: sender.frameId != null ? sender.frameId : 0,
+      frameHost: normalizeHost(message.host) || '',
+      topHost,
+      mode: String(message.mode || ''),
+    });
+    await chrome.storage.local.set({ [FRAME_KEY]: log.slice(0, 60) });
+    return { ok: true };
   },
   'thg:protect': async (message) => protectHost(message.host),
   'thg:unprotect': async (message) => unprotectHost(message.host),
@@ -860,7 +1066,16 @@ const HANDLERS = {
   },
   'thg:export': async () => ({
     ok: true,
-    data: { hosts, exceptions, log: await getLog() },
+    // Diagnostics and the frame log are included on purpose: a block log alone
+    // cannot say whether a leaked tab was refused by the page guard, missed by
+    // it, or opened from a frame that was never armed.
+    data: {
+      hosts,
+      exceptions,
+      log: await getLog(),
+      diag: await getDiag(),
+      frames: (await chrome.storage.local.get(FRAME_KEY))[FRAME_KEY] || [],
+    },
   }),
   'thg:import': async (message) => importState(message.data),
 };

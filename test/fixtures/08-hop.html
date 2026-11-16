@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>halaman perantara</title>
+    <link rel="stylesheet" href="fixtures.css" />
+    <script>
+      // The ad's first hop is on the site's own domain, which is why it must be
+      // allowed to exist; the cross-domain hop is what the watchdog catches.
+      setTimeout(() => {
+        location.replace('https://example.com/?from=same-site-redirect');
+      }, 300);
+    </script>
+  </head>
+  <body>
+    <h1>Halaman perantara</h1>
+    <p class="note">Sebentar lagi halaman ini berpindah ke domain iklan…</p>
+  </body>
+</html>
