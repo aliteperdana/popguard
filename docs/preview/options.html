@@ -17,9 +17,12 @@
         <div>
           <h1>PopGuard</h1>
           <p class="lead">
-            Only the sites listed below get the guard script. Host matching is
-            <strong>exact</strong> — <code>www.example.com</code> and
-            <code>example.com</code> are two separate entries.
+            Only the sites listed below are protected. A small <em>inert</em>
+            script is installed in every page so a pop-up opened from an ad
+            iframe can be refused before a tab exists; it stays dormant until a
+            site is enabled here. Host matching is <strong>exact</strong> —
+            <code>www.example.com</code> and <code>example.com</code> are two
+            separate entries.
           </p>
         </div>
       </header>
@@ -78,7 +81,7 @@
         <h2>Block log</h2>
         <div class="toolbar">
           <button class="secondary" type="button">Clear log</button>
-          <span class="note">2 entries (max 300, newest first)</span>
+          <span class="note">3 entries (max 300, newest first)</span>
         </div>
         <table>
           <thead>
@@ -91,6 +94,16 @@
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td class="nowrap">1:14:41 PM</td>
+              <td class="mono nowrap">forum.example.org</td>
+              <td class="nowrap">no link was clicked to it</td>
+              <td class="mono url-cell">https://ads.example.net/popunder</td>
+              <td class="row-actions">
+                <button class="secondary" type="button">Open</button>
+                <button class="secondary" type="button">Allow site</button>
+              </td>
+            </tr>
             <tr>
               <td class="nowrap">1:14:41 PM</td>
               <td class="mono nowrap">forum.example.org</td>
@@ -147,6 +160,19 @@
             </tr>
           </tbody>
         </table>
+      </section>
+
+      <section>
+        <h2>Behaviour</h2>
+        <label class="toggle-row">
+          <input type="checkbox" checked />
+          <span>
+            Show a small notice when a pop-up is refused
+            <em>before it becomes a tab</em>. The notice offers “Open anyway” for
+            the exact URL, in case a legitimate sign-in or share window was
+            caught.
+          </span>
+        </label>
       </section>
     </main>
   </body>

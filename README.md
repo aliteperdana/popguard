@@ -52,12 +52,21 @@ support a site and still keep the tab bar under control.
 
 ## Features
 
-- **Per-site protection.** Only hosts you turn on get the guard script.
+- **Per-site protection.** Only hosts you turn on are protected. A small inert
+  frame script is installed in every page so a pop-up fired from an ad iframe can
+  be refused; it does nothing until a site is enabled.
+- **No tab at all.** A pop-up that leaves the site without a clicked link
+  pointing at it is refused inside `window.open` — and so is a blank
+  `about:blank` pop-up, which was the last way an ad tab still appeared — so no
+  tab is created and nothing flashes. A small notice offers **Open anyway** for
+  that exact URL.
 - **Two layers.** A page-level guard that stops pop-ups before they open, and a
-  browser-level watchdog that closes what slips past it.
+  browser-level watchdog that handles what only exists after a tab is born —
+  a same-site banner that redirects to an ad.
 - **Two modes.**
-  - **Balanced** — real clicks may leave the site; tabs with no interaction,
-    pop-ups without an opener and blank tabs filled by ads are still blocked.
+  - **Balanced** — real clicks on links may leave the site; pop-ups fired by a
+    script still need evidence, and tabs with no interaction, pop-ups without an
+    opener and blank tabs filled by ads are blocked.
   - **Strict** — every cross-domain tab is blocked unless the domain is
     explicitly excepted. Right-click, Ctrl-click and middle-click still work.
 - **Block log and diagnostics.** Every decision is recorded with its reason, so
@@ -79,13 +88,16 @@ Reload the page after enabling: the guard is only installed on page load.
 
 - **A tab opened without an opener** (noopener) is attributed by focus; a
   background tab in the same window is deliberately left alone.
-- **Pop-ups that never leave `about:blank`** (content written via
-  `document.write`) are not closed, because closing all blank tabs would break
-  typing a URL into a new tab.
-- **Pop-ups opened by a plain left click** are allowed in balanced mode and
-  blocked in strict mode. That is the line between a forum and an ad-heavy site.
-- **Redirect surveillance** only runs in strict mode and only for tabs the user
-  did not open personally.
+- **A same-site banner that redirects** cannot be refused at birth — at that
+  moment it is indistinguishable from a legitimate same-site pop-up. It is
+  closed by the watchdog before the ad page loads (strict mode only).
+- **Pop-ups that only ever exist as `about:blank`** (content written via
+  `document.write`) are refused altogether. Legacy print/preview windows that use
+  that pattern stop working on an enabled site; in exchange, an ad can no longer
+  open a blank tab and fill it a second later.
+- **Pop-ups opened by a plain left click on a cross-domain link** are allowed in
+  balanced mode and blocked in strict mode. That is the line between a forum and
+  an ad-heavy site.
 - Practically tested on Brave; other Chromium browsers should work but are not
   covered by a test suite.
 

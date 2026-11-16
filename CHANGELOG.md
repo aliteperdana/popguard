@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.3.0 — 2026-11-14
+
+**No tab at all**
+
+- A cross-domain `window.open` is now refused *inside* `window.open` unless the
+  user clicked a link pointing at that destination. The real `window.open` is
+  never called, so no tab is created — nothing flashes and closes.
+- The same rule applies in both modes. Modes now govern `_blank` link clicks
+  only; scripted pop-ups always need evidence.
+- A small notice offers **Open anyway** for the exact URL that was refused. It
+  can be switched off in settings.
+- Cross-origin ad iframes are covered: a frame guard runs in every frame of every
+  site, but stays inert until the tab's top host is enabled. The armed decision is
+  relayed down the frame tree so a freshly created ad iframe is covered before its
+  first click.
+- A blank `about:blank` pop-up is refused too — it was the last way an ad tab
+  still appeared before being closed.
+- A form with `target=_blank` to another site is blocked in strict mode; it never
+  passes through `window.open` or a link click.
+- A clean `window.open` grabbed from a freshly created iframe is guarded too: the
+  `contentWindow` getter hands back a window whose `open` is patched, so that
+  trick no longer produces an unlogged popup.
+
+**Faster backstop**
+
+- `webNavigation` supplies the destination URL at tab creation, so the decision
+  no longer waits for `tabs.onUpdated`.
+- Redirect surveillance now listens on `onBeforeNavigate`, so a same-site banner
+  that redirects to an ad is closed before the ad page is requested.
+
 ## 0.2.0 — 2026-11-12
 
 First public release.
