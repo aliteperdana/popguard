@@ -14,3 +14,7 @@ desktop.ini
 # Packaged releases
 dist/
 popguard-*.zip
+
+# Local-only notes, never published
+progress.md
+AGENTS.md
